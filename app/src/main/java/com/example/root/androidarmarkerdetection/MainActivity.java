@@ -1,5 +1,7 @@
 package com.example.root.androidarmarkerdetection;
-
+/**
+ * Created by zalpha on 20/7/17.
+ */
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -66,6 +68,17 @@ import android.widget.Toast;
 import org.opencv.core.Size;
 
 import static android.R.attr.bitmap;
+/**
+* <h1>Mainactivity for application</h1>
+* This class is intantiates all camera, opencv
+* tesseract etc. related functions. This class 
+* also initiates an Asynchronous access for the 
+* Image processing, Optical Character Recognition(OCR) etc.
+*
+* @author  zalpha
+* @version 1.0
+* @since   2017-07-17
+*/
 
 public class MainActivity extends Activity implements OnTouchListener, CvCameraViewListener2 {
 
@@ -90,7 +103,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
     private SeekBar minTresholdSeekbar = null;
     private SeekBar maxTresholdSeekbar = null;
     private TextView minTresholdSeekbarText = null;
-//    private TextView numberOfFingersText = null;
+
 
     double iThreshold = 0;
 
@@ -109,8 +122,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
     final Handler mHandler = new Handler();
     int numberOfFingers = 0;
-   // Bitmap frame;
-   // TessOCR ocr;
+
     InfoContainer wordDetailes;
 
     private ProgressDialog mProgressDialog;
@@ -124,11 +136,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 
 
-//    final Runnable mUpdateFingerCountResults = new Runnable() {
-//        public void run() {
-//            updateNumberOfFingers();
-//        }
-//    };
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -175,9 +182,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
         minTresholdSeekbarText = (TextView) findViewById(R.id.textView3);
 
-
-//        numberOfFingersText = (TextView) findViewById(R.id.numberOfFingers);
-
         minTresholdSeekbar = (SeekBar)findViewById(R.id.seekBar1);
         minTresholdSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             int progressChanged = 0;
@@ -188,7 +192,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
+                
             }
 
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -262,40 +266,29 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         super.onResume();
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_1_0, this, mLoaderCallback);
     }
-
+   /**
+   * This method is used to adisable the cameraView 
+   * when operation is completed
+   * @param Nothing
+   * @return Nothing
+   */
     public void onDestroy() {
         super.onDestroy();
         mOpenCvCameraView.disableView();
     }
 
+   /**
+   * This method is called when a frame is rstarted.
+   * generally used for initialization
+   * @param width Width of the image
+   * @param height height of the image
+   * @return Nothing
+   */
     public void onCameraViewStarted(int width, int height) {
         mGray = new Mat();
         mRgba = new Mat();
-        mRgbaT = new Mat();
-        mRgbaF = new Mat();
         mIntermediateMat = new Mat();
 
-        /*
-        mResolutionList = mOpenCvCameraView.getResolutionList();
-        ListIterator<Size> resolutionItr = mResolutionList.listIterator();
-        while(resolutionItr.hasNext()) {
-            Size element = resolutionItr.next();
-            Log.i(TAG, "Resolution Option ["+Integer.valueOf(element.width).toString() + "x" + Integer.valueOf(element.height).toString()+"]");
-        }
-        Size resolution = mResolutionList.get(7);
-        mOpenCvCameraView.setResolution(resolution);
-        resolution = mOpenCvCameraView.getResolution();
-        String caption = "Resolution "+ Integer.valueOf(resolution.width).toString() + "x" + Integer.valueOf(resolution.height).toString();
-        Toast.makeText(this, caption, Toast.LENGTH_SHORT).show();
-        */
-//        Camera.Size resolution = mOpenCvCameraView.getResolution();
-//        String caption = "Resolution "+ Integer.valueOf(resolution.width).toString() + "x" + Integer.valueOf(resolution.height).toString();
-//        Toast.makeText(this, caption, Toast.LENGTH_SHORT).show();
-//
-//        Camera.Parameters cParams = mOpenCvCameraView.getParameters();
-//        cParams.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
-//        mOpenCvCameraView.setParameters(cParams);
-//        Toast.makeText(this, "Focus mode : "+cParams.getFocusMode(), Toast.LENGTH_SHORT).show();
 
         mRgba = new Mat(height, width, CvType.CV_8UC4);
         mRgbaT = new Mat(height, width, CvType.CV_8UC4);
@@ -310,11 +303,25 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
     }
 
+   /**
+   * This method is used to release the memory
+   * allocated for Mat objects 
+   * @param Nothing
+   * @return Nothing
+   */
     public void onCameraViewStopped() {
         mGray.release();
         mRgba.release();
     }
 
+   /**
+   * This method is used to capture
+   * the touch event. Initially, a touch event is required
+   * to detect the finger/marker
+   * @param v current view
+   * @param event Object used to report movement finger events.
+   * @return selected or not
+   */
     public boolean onTouch(View v, MotionEvent event) {
         int cols = mRgba.cols();
         int rows = mRgba.rows();
@@ -362,9 +369,16 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         touchedRegionRgba.release();
         touchedRegionHsv.release();
 
-        return false; // don't need subsequent touch events
+        return false;
     }
 
+
+   /**
+   * This method is used to convert
+   * Scalar HSV to RGBA
+   * @param hsvColor object holding hsv as Scalar 
+   * @return Ourput RGBA 
+   */
     private Scalar converScalarHsv2Rgba(Scalar hsvColor) {
         Mat pointMatRgba = new Mat();
         Mat pointMatHsv = new Mat(1, 1, CvType.CV_8UC3, hsvColor);
@@ -373,25 +387,22 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         return new Scalar(pointMatRgba.get(0, 0));
     }
 
+  /**
+   * This method is called when a frame is recieved from camera
+   * here the frames are captured and used for image processing
+   * and Optical Character Recognition
+   * @param inputFrame camera frames
+   * @return modified Mat objects to display
+   */
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
         mGray = inputFrame.gray();
-/////
-        //mRgba = inputFrame.rgba();
-        // Rotate mRgba 90 degrees
-        //Core.transpose(mRgba, mRgbaT);
-        //Imgproc.resize(mRgba, mRgbaF, mRgbaF.size(), 0,0, 0);
-        //Core.flip(mRgbaF, mRgba, 1 );
 
         wordDetailes.frame = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(mRgba,wordDetailes.frame);
-       // ocr.processOCR(frame);
-        ////
         iThreshold = minTresholdSeekbar.getProgress();
 
-        //Imgproc.blur(mRgba, mRgba, new Size(5,5));
         Imgproc.GaussianBlur(mRgba, mRgba, new org.opencv.core.Size(3, 3), 1, 1);
-        //Imgproc.medianBlur(mRgba, mRgba, 3);
 
         if (!mIsColorSelected) return mRgba;
 
@@ -439,7 +450,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         Log.d(TAG,
                 " A ["+a+"] br y - tl y = ["+(boundRect.br().y - boundRect.tl().y)+"]");
 
-        //Core.rectangle( mRgba, boundRect.tl(), boundRect.br(), CONTOUR_COLOR, 2, 8, 0 );
         Imgproc.rectangle( mRgba, boundRect.tl(), new Point(boundRect.br().x, a), CONTOUR_COLOR, 2, 8, 0 );
 
         MatOfPoint2f pointMat = new MatOfPoint2f();
@@ -483,7 +493,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         Log.d(TAG, "defects: " + convexDefect.toList());
 
         Imgproc.drawContours(mRgba, hullPoints, -1, CONTOUR_COLOR, 3);
-////////
         wordDetailes.lowest = new Point(0,0);
 
         org.opencv.core.Point[] points = hullPoints.get(0).toArray();
@@ -501,53 +510,11 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         if(taskStatus == 0) {
             new OcrInitAsyncTask().execute(wordDetailes);
         }
-//        new Thread(new Runnable() {
-//            public void run() {
-//
-//                ocr.processOCR(wordDetailes.frame);
-//                //ocr.getBoundingBoxes(bitmap);
-//                wordDetailes = ocr.getNearBoundingBoxes(wordDetailes.frame,wordDetailes.lowest);
-//
-//
-//
-//                runOnUiThread(new Runnable() {
-//
-//                    @Override
-//                    public void run() {
-//                        // TODO Auto-generated method stub
-//                        if (wordDetailes != null && !wordDetailes.word.equals("")) {
-//                            // Imgproc.rectangle(mRgba, wordDetailes.nearBox, new Scalar(255,0,0,255),1,8,0);
-//                            Imgproc.putText(mRgba, "Word", new Point(wordDetailes.nearBox.centerX(),wordDetailes.nearBox.centerY()), 3, 2, new Scalar(255, 0, 255, 255), 3);
-//                            //////
-//                            // Imgproc.putText(mRgba, "Ajith Kumar", lowest, 3, 2, new Scalar(255, 0, 0, 255), 3);
-//                            Imgproc.putText(mRgba, wordDetailes.word, wordDetailes.lowest, 3, 2, new Scalar(255, 0, 0, 255), 3);
-//                        }
-//
-//                        mProgressDialog.dismiss();
-//                    }
-//
-//                });
-//
-//            };
-//        }).start();
-        /////
 
-
-//        InfoContainer wordDetailes = ocr.getNearBoundingBoxes(frame,lowest);
-//
-//       // Imgproc.rectangle(mRgba, wordDetailes.nearBox, new Scalar(255,0,0,255),1,8,0);
-//        Imgproc.putText(mRgba, "Word", new Point(wordDetailes.nearBox.centerX(),wordDetailes.nearBox.centerY()), 3, 2, new Scalar(255, 0, 255, 255), 3);
-//                //////
-//       // Imgproc.putText(mRgba, "Ajith Kumar", lowest, 3, 2, new Scalar(255, 0, 0, 255), 3);
-//        Imgproc.putText(mRgba, wordDetailes.word, lowest, 3, 2, new Scalar(255, 0, 0, 255), 3);
-        //////
         int defectsTotal = (int) convexDefect.total();
         Log.d(TAG, "Defect total " + defectsTotal);
 
-//        this.numberOfFingers = listPoDefect.size();
-//        if(this.numberOfFingers > 5) this.numberOfFingers = 5;
-//
-//        mHandler.post(mUpdateFingerCountResults);
+
 
         for(Point p : listPoDefect){
             Imgproc.circle(mRgba, p, 6, new Scalar(255,0,255));
@@ -556,11 +523,14 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         return mRgba;
     }
 
-//    public void updateNumberOfFingers(){
-//        numberOfFingersText.setText(String.valueOf(this.numberOfFingers));
-//    }
+
+/**
+* <h1>Asynchronous class for performing OCR and image processing</h1>
+* This class provides asynchronous access for the
+* Optical Character recognition and some image processing
+*/
+
 final class OcrInitAsyncTask extends AsyncTask<InfoContainer, String, InfoContainer> {
-    //private static final String TAG = com.example.root.androidarmarkerdetection.OcrInitAsyncTask.class.getSimpleName();
 
     private MainActivity activity;
     private TessBaseAPI baseApi;
@@ -578,36 +548,40 @@ final class OcrInitAsyncTask extends AsyncTask<InfoContainer, String, InfoContai
     JSONArray sensearr = null;
     JSONObject defobj=null;
     JSONArray def=null;
-//    MainActivity main = new MainActivity();
 
     OcrInitAsyncTask() {
         baseApi = new TessBaseAPI();
     }
 
+  /**
+   * This method is called when the asynchronous
+   * thread has been created. we have used this 
+   * setting the function for flags
+   * @param Nothing
+   * @return Nothing
+   */
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        //   activity.setButtonVisibility(false);
         taskStatus = 1;
     }
 
+ /**
+   * This method performs all background 
+   * actities. The tasks such as OCR intialization, 
+   * processing, obtaining near words is
+   * performed in this funcion
+   * @param info object holding all neccessary paramters
+   * @return info object to onPostexecute
+   */
     @Override
     protected InfoContainer doInBackground(InfoContainer... info){
 
-        ////
-
-        ////
-//		String datapath = Environment.getExternalStorageDirectory() + "/tesseract/";
-//		String language = "eng";
-//		File dir = new File(datapath + "tessdata/");
-//		if (!dir.exists())
-//			dir.mkdirs();
         baseApi.init(info[0].data_path, lang);
         baseApi.setImage(ReadFile.readBitmap(info[0].frame));
 
         String textResult = baseApi.getUTF8Text();
         Log.d(TAG, textResult);
-        // String result = mTess.getUT    F8Text();
         ResultIterator iterator = baseApi.getResultIterator();
         String lastUTF8Text;
         float lastConfidence;
@@ -635,14 +609,12 @@ final class OcrInitAsyncTask extends AsyncTask<InfoContainer, String, InfoContai
                 Log.v(TAG, "Word" + lastUTF8Text);
                 Log.v(TAG, "confidence" + lastConfidence);
                 Log.v(TAG, "nearbox" + lastBoundingRect);
-                //Log.v(TAG, "Distance" + distance +" "+tempDistance);
 
                 distance = tempDistance;
                 info[0].nearBox = lastBoundingRect;
                 info[0].word = lastUTF8Text;
                 info[0].confidence = lastConfidence;
             }
-            //Log.v(TAG, "Boundingbox" + lastBoundingRect.top +" "+lastBoundingRect.bottom +" "+ lastBoundingRect.right +" "+ lastBoundingRect.left +  " = " + lastUTF8Text + " " + lastConfidence);
         } while (iterator.next(TessBaseAPI.PageIteratorLevel.RIL_WORD));
         Log.v(TAG, "Boundingbox" + info[0].nearBox.top +" "+info[0].nearBox.bottom +" "+ info[0].nearBox.right +" "+ info[0].nearBox.left +  " = " + info[0].word + " " + info[0].confidence);
         iterator.delete();
@@ -652,7 +624,7 @@ final class OcrInitAsyncTask extends AsyncTask<InfoContainer, String, InfoContai
 
         JsonObjectRequest jsRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
-            public void onResponse(JSONObject response) {   // jsRequest đọc json và lưu vào response
+            public void onResponse(JSONObject response) {   // json scraping for dictionary values
                 int count_value = 0;
 
                 Log.d("respone - "," output ="+response.toString());
@@ -712,26 +684,36 @@ final class OcrInitAsyncTask extends AsyncTask<InfoContainer, String, InfoContai
         RequestQueue rQueue = Volley.newRequestQueue(info[0].mcontext);
         rQueue.add(jsRequest);
 
-//        result_word = info[0].word;
-//        return result_word;
         if(status == -1){
             info[0].word += "No definitions found";
             status = 0;
             return info[0];
         }
-        //temp_string +="= ";
         info[0].word += " = "+temp_string;
         Log.d(TAG,"final word:"+info[0].word);
         return info[0];
     }
 
-
+ /**
+   * This method updates the progress when doinBackground 
+   * function intends to call it. As of now, this function 
+   * is not required. 
+   * @param message if message is to be displayed
+   * @return Nothing
+   */
     @Override
     protected void onProgressUpdate(String... message){
         super.onProgressUpdate();
 
     }
 
+ /**
+   * This method runs on UI thread and 
+   * is used to process the data obtained as 
+   * a result of doInBackground
+   * @param info object holding all neccessary paramters
+   * @return Nothing
+   */
     @Override
     protected void onPostExecute(InfoContainer result) {
         super.onPostExecute(result);
@@ -745,13 +727,7 @@ final class OcrInitAsyncTask extends AsyncTask<InfoContainer, String, InfoContai
             }
         }, 3000);
         resultText.setVisibility(View.INVISIBLE);
-
-       // Toast.makeText(MainActivity.this, result.word, Toast.LENGTH_SHORT).show();
         taskStatus = 0;
-    }
-    public void onDestroy() {
-        if (baseApi != null)
-            baseApi.end();
     }
 }
 }

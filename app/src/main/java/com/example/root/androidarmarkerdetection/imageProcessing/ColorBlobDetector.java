@@ -11,6 +11,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+* <h1>Detection colour blobs</h1>
+* This class is temporarily created to aetect 
+* the colour blobs. color blobs are nothing but
+* the features which exhibit different charactersistics. 
+* fingerdetection can be made possible by detecting the blobs 
+*/
 public class ColorBlobDetector {
 	// Lower and Upper bounds for range checking in HSV color space
     private Scalar mLowerBound = new Scalar(0);
@@ -29,10 +36,23 @@ public class ColorBlobDetector {
     Mat mDilatedMask = new Mat();
     Mat mHierarchy = new Mat();
 
+ /**
+   * This method is used to set
+   * the color radius
+   * @param radius radius as scalar object
+   * @param attrs Nothing
+   */
     public void setColorRadius(Scalar radius) {
         mColorRadius = radius;
     }
 
+
+ /**
+   * The method is used to set the 
+   * HSV color using opencv image processing functions
+   * @param hsvColor scalar form of hsv
+   * @param attrs Nothing
+   */
     public void setHsvColor(Scalar hsvColor) {
         double minH = (hsvColor.val[0] >= mColorRadius.val[0]) ? hsvColor.val[0]-mColorRadius.val[0] : 0;
         double maxH = (hsvColor.val[0]+mColorRadius.val[0] <= 255) ? hsvColor.val[0]+mColorRadius.val[0] : 255;
@@ -59,14 +79,33 @@ public class ColorBlobDetector {
         Imgproc.cvtColor(spectrumHsv, mSpectrum, Imgproc.COLOR_HSV2RGB_FULL, 4);
     }
 
+ /**
+   * The method is used to 
+   * to get the frame spectrum 
+   * @param Nothing
+   * @param Specturm of Mat type
+   */
     public Mat getSpectrum() {
         return mSpectrum;
     }
 
+
+ /**
+   * The method is used to 
+   * to set the minimum contour area
+   * @param area to set
+   * @param Nothing
+   */
     public void setMinContourArea(double area) {
         mMinContourArea = area;
     }
 
+ /**
+   * The method is gets the input Mat frame
+   * and process to detect contours.
+   * @param rgbaImage Mat object on for contour detection
+   * @param Nothing
+   */
     public void process(Mat rgbaImage) {
         Imgproc.pyrDown(rgbaImage, mPyrDownMat);
     	Imgproc.pyrDown(mPyrDownMat, mPyrDownMat);
@@ -102,6 +141,13 @@ public class ColorBlobDetector {
         }
     }
 
+ /**
+   * The method returns all possible/ detected contours as
+   * MatofPoint List. This result will be used on overlaying
+   * the frames, finger detection, nearest word detection etc
+   * @param Nothing
+   * @param contours as a list of MatofPoint
+   */
     public List<MatOfPoint> getContours() {
         return mContours;
     }
